@@ -8,7 +8,7 @@ class Images(Base):
     __tablename__ = "images"
     id = Column(String, primary_key=True, unique=True)
     date = Column(DateTime)
-    picture = Column(BLOB, primary_key=True, unique=True)
+    picture = Column(BLOB)
     user_id = Column(Integer)
 
 
