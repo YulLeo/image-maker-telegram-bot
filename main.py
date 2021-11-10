@@ -36,7 +36,7 @@ async def download_gifs_options(message: types.Message):
     """
     await bot.send_photo(
         chat_id=message.chat.id,
-        photo=open("add_text_example.png", "rb"),
+        photo=open("telegram_bot/add_text_example.png", "rb"),
         caption="Just attach picture and add your text in the same message",
     )
 
