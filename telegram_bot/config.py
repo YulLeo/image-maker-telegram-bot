@@ -7,9 +7,7 @@ load_dotenv()
 
 API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
 REPOSITORY_ROOT = Path(__file__).parent.parent
-DATABASE_URL = (
-    f"sqlite:///{REPOSITORY_ROOT}/{os.getenv('SQLALCHEMY_DATABASE_URL')}"
-)
+DATABASE_URL = f"sqlite:///{REPOSITORY_ROOT}/{os.getenv('SQLALCHEMY_DATABASE_URL')}"
 
 PNG = "PNG"
 
@@ -25,9 +23,9 @@ WIDTH_PROPORTION = 0.7
 
 RGBA = "RGBA"
 
-FILL_COLOR = (255, 255, 255)
+FILL_COLOR = 'white'
 
-STROKE_COLOR = (0, 0, 0)
+STROKE_COLOR = (0,)
 
 DURATION = 350
 

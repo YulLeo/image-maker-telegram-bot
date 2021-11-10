@@ -8,8 +8,8 @@ from aiogram_media_group import media_group_handler
 
 from telegram_bot.config import API_TOKEN
 from telegram_bot.data_manager import get_all_gifs, get_user_gifs
+from telegram_bot.helper import add_to_archive, read_image, read_images
 from telegram_bot.image_maker import create_gif, create_text_with_picture
-from telegram_bot.helper import read_image, add_to_archive, read_images
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,9 +36,9 @@ async def download_gifs_options(message: types.Message):
     """
     await bot.send_photo(
         chat_id=message.chat.id,
-        photo=open('add_text_example.png', 'rb'),
-        caption="Just attach picture and add your text in the same message"
-                )
+        photo=open("add_text_example.png", "rb"),
+        caption="Just attach picture and add your text in the same message",
+    )
 
 
 @dp.message_handler(commands=["download_gifs"])
@@ -68,9 +68,8 @@ async def download_user_gifs(message: types.Message):
         await message.reply_media_group(media=media)
     else:
         await bot.send_document(
-            message.chat.id,
-            types.InputFile(add_to_archive(user_gifs))
-            )
+            message.chat.id, types.InputFile(add_to_archive(user_gifs))
+        )
 
 
 @dp.message_handler(commands=["download_all_gifs"])
@@ -90,13 +89,11 @@ async def download_all_gifs(message: types.Message):
         await message.reply_media_group(media=media)
     else:
         await bot.send_document(
-            message.chat.id,
-            types.InputFile(add_to_archive(all_gifs)))
+            message.chat.id, types.InputFile(add_to_archive(all_gifs))
+        )
 
 
-@dp.message_handler(
-    MediaGroupFilter(is_media_group=True), content_types=["photo"]
-)
+@dp.message_handler(MediaGroupFilter(is_media_group=True), content_types=["photo"])
 @media_group_handler
 async def collect_media_group_photo(messages):
     """
@@ -107,9 +104,7 @@ async def collect_media_group_photo(messages):
     for message in messages:
         bytes_io_file = BytesIO()
         downloaded_pictures.append(
-            await message.photo[-1].download(
-                destination_file=bytes_io_file
-            )
+            await message.photo[-1].download(destination_file=bytes_io_file)
         )
 
     await bot.send_animation(
@@ -117,8 +112,8 @@ async def collect_media_group_photo(messages):
         animation=create_gif(
             pictures=read_images(downloaded_pictures),
             watermark=messages[0].from_user.mention,
-            user_id=messages[0].from_user.id
-        )
+            user_id=messages[0].from_user.id,
+        ),
     )
 
 
@@ -136,7 +131,8 @@ async def handle_text_photo(message):
         photo=create_text_with_picture(
             img=read_image(downloaded_picture),
             text=message.caption,
-            user_id=message.from_user.id)
+            user_id=message.from_user.id,
+        ),
     )
 
 
