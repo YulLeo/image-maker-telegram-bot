@@ -8,10 +8,8 @@ from aiogram_media_group import media_group_handler
 
 from telegram_bot.config import API_TOKEN
 from telegram_bot.data_manager import get_all_gifs, get_user_gifs
-from telegram_bot.gifs import create_gif
+from telegram_bot.image_maker import create_gif, create_text_with_picture
 from telegram_bot.helper import read_image, add_to_archive, read_images
-from telegram_bot.pictures import add_text_to_picture
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -24,11 +22,23 @@ async def send_welcome(message: types.Message):
     """Sends welcome message and help"""
     await message.answer(
         "This bot assists you with pictures.\n"
-        "Add text to your picture or make GIF from group of images\n\n"
-        "Send picture with caption => Picture with text\n"
-        "Send 2 to 10 pictures => GIF\n"
-        "download_gifs: /download_gifs\n"
+        "He can add text to your picture or make GIF from group of images\n\n"
+        "Add text to picture: /add_text\n"
+        "Create GIF: /create_gif\n"
+        "Download_gifs: /download_gifs\n"
     )
+
+
+@dp.message_handler(commands=["add_text"])
+async def download_gifs_options(message: types.Message):
+    """
+    Explains how to add tex to image
+    """
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=open('add_text_example.png', 'rb'),
+        caption="Just attach picture and add your text in the same message"
+                )
 
 
 @dp.message_handler(commands=["download_gifs"])
@@ -106,7 +116,7 @@ async def collect_media_group_photo(messages):
         chat_id=messages[0].chat.id,
         animation=create_gif(
             pictures=read_images(downloaded_pictures),
-            text=messages[0].from_user.mention,
+            watermark=messages[0].from_user.mention,
             user_id=messages[0].from_user.id
         )
     )
@@ -123,7 +133,7 @@ async def handle_text_photo(message):
     )
     await bot.send_photo(
         chat_id=message.chat.id,
-        photo=add_text_to_picture(
+        photo=create_text_with_picture(
             img=read_image(downloaded_picture),
             text=message.caption,
             user_id=message.from_user.id)
