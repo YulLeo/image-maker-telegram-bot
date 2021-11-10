@@ -25,6 +25,7 @@ TELEGRAM_API_TOKEN=<YOUR_TELEGRAM_API_TOKEN>
 SQLALCHEMY_DATABASE_URL=db/sql_app.db
 ```
 [How to get Telegram Bot API token](https://core.telegram.org/bots#6-botfather)
+
 5. To start bot run following command:
 ```bash
 python main.py
@@ -41,6 +42,7 @@ TELEGRAM_API_TOKEN=<YOUR_TELEGRAM_API_TOKEN>
 SQLALCHEMY_DATABASE_URL=db/sql_app.db
 ```
 [How to get Telegram Bot API token](https://core.telegram.org/bots#6-botfather)
+
 3. Run
 ```bash
 docker-compose up
