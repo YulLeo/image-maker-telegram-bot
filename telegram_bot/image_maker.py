@@ -12,8 +12,8 @@ from telegram_bot.models import GIFs, Images
 
 
 def create_gif(
-    pictures: list[Image], watermark: str, user_id: int, private=False
-) -> BytesIO:
+        pictures: list, watermark: str,
+        user_id: int, private=False) -> BytesIO:
     """
     Creates gif with watermark from list of PIL images and adds it to database.
     Returns BytesIO object
@@ -50,9 +50,11 @@ def add_watermark(gif: Any, watermark: str) -> BytesIO:
     return save_gif(frames)
 
 
-def create_text_with_picture(img: Image, text: str, user_id: int) -> BytesIO:
+def create_text_with_picture(
+        img: Image, text: str, user_id: int) -> BytesIO:
     """
-    Add text to PIL image, converts it to BytesIO object and add it to the database.
+    Add text to PIL image, converts it to BytesIO object
+    and add it to the database.
     :param img: opened PIL picture
     :param text: text to be added to the picture
     :param user_id: user id

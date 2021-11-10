@@ -1,14 +1,14 @@
-FROM python:3.9-slim
+FROM ubuntu:20.04
 
 WORKDIR /meme-and-gifs-generator-telegram-bot
 
-COPY requirements.txt requirements.txt
-
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y git
+    apt-get install -y git python3 pip
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+COPY requirements.txt requirements.txt
+
+RUN python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt
 
 COPY . .
 

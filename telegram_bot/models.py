@@ -1,5 +1,4 @@
 import datetime
-from datetime import datetime
 
 from sqlalchemy import (BLOB, Boolean, Column, DateTime, ForeignKey, Integer,
                         String)
