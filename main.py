@@ -6,7 +6,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import MediaGroupFilter
 from aiogram_media_group import media_group_handler
 
-from telegram_bot.config import API_TOKEN, GIF_FILE_NAME
+from telegram_bot.config import API_TOKEN, GIF_FILE_NAME, REPOSITORY_ROOT
 from telegram_bot.data_manager import get_all_gifs, get_user_gifs
 from telegram_bot.helper import add_to_archive, read_image, read_images
 from telegram_bot.image_maker import create_gif, create_text_with_picture
@@ -36,7 +36,7 @@ async def add_file_instructions(message: types.Message):
     """
     await bot.send_photo(
         chat_id=message.chat.id,
-        photo=open("add_text_example.png", "rb"),
+        photo=open(REPOSITORY_ROOT / "telegram_bot" / "add_text_example.png", "rb"),
         caption="Just attach picture and add your text in the same message",
     )
 
@@ -48,7 +48,7 @@ async def create_gif_instructions(message: types.Message):
     """
     await bot.send_photo(
         chat_id=message.chat.id,
-        photo=open("private_gif_example.png", "rb"),
+        photo=open(REPOSITORY_ROOT / "telegram_bot" / "private_gif_example.png", "rb"),
         caption="To make GIF you should attach group of images\nType 'private' to make GIF unavailable for "
                 "downloading by other users",
     )
