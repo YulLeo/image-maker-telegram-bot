@@ -20,8 +20,7 @@ def picture_to_pil_provider():
 
 def test_add_watermark_equal_gifs():
     gif_without_wat = "pictures_tests/test_gif_without_watermark.gif"
-    sample_gif_with_wat = Image.open(
-        "pictures_tests/test_gif_with_watermark.gif")
+    sample_gif_with_wat = Image.open("pictures_tests/test_gif_with_watermark.gif")
     with_water = add_watermark(gif_without_wat, "@Yulia_Penkovskaya")
     gif_frame1 = next(ImageSequence.Iterator(with_water))
     gif_frame2 = next(ImageSequence.Iterator(sample_gif_with_wat))

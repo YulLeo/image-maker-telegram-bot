@@ -6,7 +6,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import MediaGroupFilter
 from aiogram_media_group import media_group_handler
 
-from telegram_bot.config import API_TOKEN
+from telegram_bot.config import API_TOKEN, GIF_FILE_NAME
 from telegram_bot.data_manager import get_all_gifs, get_user_gifs
 from telegram_bot.helper import add_to_archive, read_image, read_images
 from telegram_bot.image_maker import create_gif, create_text_with_picture
@@ -30,14 +30,27 @@ async def send_welcome(message: types.Message):
 
 
 @dp.message_handler(commands=["add_text"])
-async def download_gifs_options(message: types.Message):
+async def add_file_instructions(message: types.Message):
     """
     Explains how to add tex to image
     """
     await bot.send_photo(
         chat_id=message.chat.id,
-        photo=open("telegram_bot/add_text_example.png", "rb"),
+        photo=open("add_text_example.png", "rb"),
         caption="Just attach picture and add your text in the same message",
+    )
+
+
+@dp.message_handler(commands=["create_gif"])
+async def create_gif_instructions(message: types.Message):
+    """
+    Explains how to create GIF
+    """
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=open("private_gif_example.png", "rb"),
+        caption="To make GIF you should attach group of images\nType 'private' to make GIF unavailable for "
+                "downloading by other users",
     )
 
 
@@ -60,16 +73,7 @@ async def download_user_gifs(message: types.Message):
     """
 
     user_gifs = get_user_gifs(user_id=message.from_user.id)
-    if len(user_gifs) <= 10:
-        media = types.MediaGroup()
-        for gif in user_gifs:
-            bytes_io_gif = BytesIO(gif.picture)
-            media.attach_document(types.InputFile(bytes_io_gif))
-        await message.reply_media_group(media=media)
-    else:
-        await bot.send_document(
-            message.chat.id, types.InputFile(add_to_archive(user_gifs))
-        )
+    await send_gifs(user_gifs, message)
 
 
 @dp.message_handler(commands=["download_all_gifs"])
@@ -80,17 +84,23 @@ async def download_all_gifs(message: types.Message):
     If there are more than ten gifs, bot sends archive
     """
     all_gifs = get_all_gifs()
-    if len(all_gifs) <= 10:
+    await send_gifs(all_gifs, message)
+
+
+async def send_gifs(gifs, message):
+    if len(gifs) < 2:
+        bytes_io_gif = BytesIO(gifs[0].picture)
+        bytes_io_gif.name = GIF_FILE_NAME
+        await bot.send_animation(chat_id=message.chat.id, animation=bytes_io_gif)
+    elif len(gifs) <= 10:
         media = types.MediaGroup()
-        for num, gif in enumerate(all_gifs):
+        for num, gif in enumerate(gifs):
             bytes_io_gif = BytesIO(gif.picture)
             bytes_io_gif.name = f"{num}.gif"
             media.attach_document(types.InputFile(bytes_io_gif))
         await message.reply_media_group(media=media)
     else:
-        await bot.send_document(
-            message.chat.id, types.InputFile(add_to_archive(all_gifs))
-        )
+        await bot.send_document(message.chat.id, types.InputFile(add_to_archive(gifs)))
 
 
 @dp.message_handler(MediaGroupFilter(is_media_group=True), content_types=["photo"])
@@ -113,6 +123,7 @@ async def collect_media_group_photo(messages):
             pictures=read_images(downloaded_pictures),
             watermark=messages[0].from_user.mention,
             user_id=messages[0].from_user.id,
+            private=any([message.caption == "private" for message in messages]),
         ),
     )
 

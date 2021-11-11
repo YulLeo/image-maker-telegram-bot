@@ -14,8 +14,6 @@ def get_all_gifs():
 
 def get_user_gifs(user_id):
     user_gifs = session.query(
-        GIFs.picture
-    ).filter(
-        GIFs.user_id == user_id
-    ).all()
+        GIFs.picture).filter(
+        GIFs.user_id == user_id).all()
     return user_gifs
