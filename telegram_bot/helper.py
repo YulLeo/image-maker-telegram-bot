@@ -33,10 +33,10 @@ def add_to_archive(rows_with_gifs: sqlite3.Row) -> BytesIO:
     :param rows_with_gifs:
     :return: BytesIO
     """
-    with BytesIO() as zip:
-        zip.name = ZIP_FILE_NAME
-        with ZipFile(zip, "w") as zip_obj:
-            for num, gif in enumerate(rows_with_gifs):
-                zip_obj.writestr(f"{num}.gif", gif.picture)
-        zip.seek(0)
-        return zip
+    zip = BytesIO()
+    zip.name = ZIP_FILE_NAME
+    with ZipFile(zip, "w") as zip_obj:
+        for num, gif in enumerate(rows_with_gifs):
+            zip_obj.writestr(f"{num}.gif", gif.picture)
+    zip.seek(0)
+    return zip
