@@ -1,4 +1,4 @@
-# Meme and GIFs generator Telegram bot 
+# Image Maker Telegram bot 
 
 Telegram bot that can receive from the user:
 
