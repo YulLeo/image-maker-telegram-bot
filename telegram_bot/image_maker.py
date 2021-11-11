@@ -148,10 +148,16 @@ def make_dynamic_font(image: Any, text: str) -> ImageFont:
     """
     fontsize = 1
     img_fraction = 0.40
-    font = ImageFont.truetype(REGULAR_TTF, fontsize)
+    bytes_font = BytesIO()
+    with open(REGULAR_TTF, 'rb') as font_file:
+        bytes_font.write(font_file.read())
+    bytes_font.seek(0)
+    font = ImageFont.truetype(bytes_font, fontsize)
+    bytes_font.seek(0)
     while font.getsize(text)[0] < img_fraction * image.size[0]:
         fontsize += 1
-        font = ImageFont.truetype(REGULAR_TTF, fontsize)
+        font = ImageFont.truetype(bytes_font, fontsize)
+        bytes_font.seek(0)
     return font
 
 

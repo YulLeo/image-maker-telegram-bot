@@ -17,7 +17,7 @@ PNG_IMAGE = "image_with_text.png"
 
 SIZE = 20
 
-REGULAR_TTF = "AbyssinicaSIL-Regular.ttf"
+REGULAR_TTF = REPOSITORY_ROOT / "telegram_bot" / "AbyssinicaSIL-Regular.ttf"
 
 HEIGHT_PROPORTION = 0.9
 
