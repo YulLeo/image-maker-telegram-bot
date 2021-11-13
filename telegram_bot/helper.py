@@ -1,4 +1,5 @@
 import sqlite3
+from enum import Enum
 from io import BytesIO
 from typing import Any
 from zipfile import ZipFile
@@ -26,17 +27,22 @@ def read_images(images: list) -> list:
     return [Image.open(picture) for picture in images]
 
 
-def add_to_archive(rows_with_gifs: sqlite3.Row) -> BytesIO:
+class ArgsGetGifsEnum(Enum):
+    my_gifs = '/download_my_gifs'
+    all_gifs = '/download_all_gifs'
+
+
+def add_to_archive(gifs: set) -> BytesIO:
     """
     Extracts gifs from sqllite rows, converts each image to bytes.
     Returns BytesIO zip file with gifs.
-    :param rows_with_gifs:
+    :param gifs: set of BytesIO objects
     :return: BytesIO
     """
     zip = BytesIO()
     zip.name = ZIP_FILE_NAME
     with ZipFile(zip, "w") as zip_obj:
-        for num, gif in enumerate(rows_with_gifs):
-            zip_obj.writestr(f"{num}.gif", gif.picture)
+        for gif in gifs:
+            zip_obj.writestr(gif.name, gif.read())
     zip.seek(0)
     return zip

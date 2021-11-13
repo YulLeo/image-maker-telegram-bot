@@ -1,3 +1,4 @@
+import datetime
 from io import BytesIO
 from typing import Any, Tuple
 
@@ -9,6 +10,28 @@ from telegram_bot.config import (DURATION, FILL_COLOR, GIF, GIF_FILE_NAME,
                                  WIDTH_PROPORTION)
 from telegram_bot.helper import read_image
 from telegram_bot.models import GIFs, Images
+from minio import Minio
+from minio.commonconfig import Tags
+from minio.error import S3Error
+
+
+def add_gif_to_storage(bucket: str, file: BytesIO, user_id: int, private) -> None:
+    privacy = {0: 'no', 1: 'yes'}
+    client = Minio(
+        "127.0.0.1:9000",
+        access_key="yuliya",
+        secret_key="9817930789h",
+        secure=False,
+    )
+    file_name = f'{user_id}{datetime.datetime.now()}'
+    file_length = file.getbuffer().nbytes
+    tags = Tags(for_object=True)
+    tags['Privacy'] = privacy[private]
+    tags['user_id'] = str(user_id)
+    client.put_object(bucket, file_name, file, file_length, 'gif',
+                      metadata={'user_id': user_id, 'private': private},
+                      tags=tags
+                      )
 
 
 def create_gif(
@@ -27,7 +50,8 @@ def create_gif(
     resized_pictures = resize_picture(pictures)
     gif = save_gif(resized_pictures)
     watermarked_gif = add_watermark(gif, watermark)
-    GIFs(watermarked_gif.read(), user_id, private).add_table_row()
+    add_gif_to_storage('gifs', file=watermarked_gif, user_id=user_id, private=private)
+    # GIFs(watermarked_gif.read(), user_id, private).add_table_row()
     watermarked_gif.seek(0)
     return watermarked_gif
 
@@ -122,7 +146,7 @@ def save_gif(images: list) -> BytesIO:
 
 
 def set_up_text_location(
-    image: ImageDraw, img_opened: Image, text: str, font: ImageFont
+        image: ImageDraw, img_opened: Image, text: str, font: ImageFont
 ) -> Tuple[Any, Any]:
     """
     Returns coordinates of text location on the image
@@ -134,7 +158,7 @@ def set_up_text_location(
     """
     width_text, height_text = image.textsize(text, font)
     width, height = (img_opened.size[0] - width_text) * WIDTH_PROPORTION, (
-        img_opened.size[1] - height_text
+            img_opened.size[1] - height_text
     ) * HEIGHT_PROPORTION
     return width, height
 
