@@ -84,7 +84,7 @@ async def download_gifs(message: types.Message):
     If there are more than ten gifs, bot sends archive
     """
     try:
-        gifs = minio_storage_manager.get_gifs(
+        gifs = minio_storage_manager.select_gifs(
             user_id=message.from_user.id, amount=ArgsGetGifsEnum(message.get_command())
         )
 
@@ -95,7 +95,13 @@ async def download_gifs(message: types.Message):
         return
 
 
-async def send_gifs(gifs: Tuple[int, list], message: types.Message):
+async def send_gifs(gifs: Tuple[int, list], message: types.Message) -> None:
+    """
+    Chooses sending method depends on gifs amount
+    :param gifs: Tuple[int, list]
+    :param message: types.Message
+    :return: types.Message
+    """
     if gifs[0] == 0:
         raise exceptions.EmptyList(
             "There is no any GIFs to download. Let's create one /start"
@@ -111,7 +117,12 @@ async def send_gifs(gifs: Tuple[int, list], message: types.Message):
         )
 
 
-async def create_media_group(gifs: list[bytes]):
+async def create_media_group(gifs: list[BytesIO]) -> types.MediaGroup:
+    """
+    Takes list of BytesIo objects and attaches them to media group object
+    :param gifs: list[BytesIO]
+    :return: types.MediaGroup
+    """
     media = types.MediaGroup()
     for gif in gifs:
         gif.name = "gif.gif"
@@ -123,7 +134,7 @@ async def create_media_group(gifs: list[bytes]):
 @media_group_handler
 async def collect_media_group_photo(messages, state: FSMContext):
     """
-    Collects images from message with group of pictures and returns gif
+    Collects images from message with group of pictures, saves them in the state
     """
     async with state.proxy() as data:
         data["pictures"] = messages
@@ -139,7 +150,7 @@ async def collect_media_group_photo(messages, state: FSMContext):
 
 
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith("btn"))
-async def process_callback_kb1btn1(
+async def process_callback_media_group(
     callback_query: types.CallbackQuery, state: FSMContext
 ):
     code = callback_query.data
@@ -148,14 +159,7 @@ async def process_callback_kb1btn1(
         message_id=callback_query.message.message_id,
         reply_markup=types.InlineKeyboardMarkup([]),
     )
-    downloaded_pictures = []
-    async with state.proxy() as data:
-        messages = data["pictures"]
-
-    for message in messages:
-        downloaded_pictures.append(
-            await message.photo[-1].download(destination_file=BytesIO())
-        )
+    downloaded_pictures, messages = await download_message_pictures(state)
 
     privacy = {"btn_yes": True, "btn_no": False}
 
@@ -168,6 +172,22 @@ async def process_callback_kb1btn1(
             private=privacy[code],
         ),
     )
+
+
+async def download_message_pictures(state: FSMContext) -> Tuple[list, types.Message]:
+    """
+    Retrieves pictures from memory storage and saves them as BytesIO objects
+    :param state: FSMContext
+    :return: Tuple[list, types.Message]
+    """
+    downloaded_pictures = []
+    async with state.proxy() as data:
+        messages = data["pictures"]
+    for message in messages:
+        downloaded_pictures.append(
+            await message.photo[-1].download(destination_file=BytesIO())
+        )
+    return downloaded_pictures, messages
 
 
 @dp.message_handler(content_types=["photo"])

@@ -44,3 +44,7 @@ GIF = "GIF"
 GIF_FILE_NAME = "water_gif.gif"
 
 ZIP_FILE_NAME = "gifs.zip"
+
+USER_ID = "X-Amz-Meta-User_id"
+
+PRIVATE = "X-Amz-Meta-Private"
