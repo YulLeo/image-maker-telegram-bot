@@ -22,11 +22,16 @@ pip install -r requirements.txt
 4. Create .env file in the repository root with following environment variables:
 ```
 TELEGRAM_API_TOKEN=<YOUR_TELEGRAM_API_TOKEN>
-SQLALCHEMY_DATABASE_URL=db/sql_app.db
+SECRET_KEY=<MINIO_SECRET_KEY>
+ACCESS_KEY=<MINIO_ACCESS_KEY>
 ```
 [How to get Telegram Bot API token](https://core.telegram.org/bots#6-botfather)
 
-5. To start bot run following command:
+5. Set up and run MinIo.
+
+[MinIo Quick Start Guide](https://docs.min.io/docs/minio-quickstart-guide.html)
+
+7. To start bot run following command:
 ```bash
 python main.py
 ```
@@ -39,7 +44,8 @@ git clone git@github.com:YulLeo/meme-and-gifs-generator-telegram-bot.git
 2. Create .env file in the repository root with following environment variables:
 ```
 TELEGRAM_API_TOKEN=<YOUR_TELEGRAM_API_TOKEN>
-SQLALCHEMY_DATABASE_URL=db/sql_app.db
+SECRET_KEY=<MINIO_SECRET_KEY>
+ACCESS_KEY=<MINIO_ACCESS_KEY>
 ```
 [How to get Telegram Bot API token](https://core.telegram.org/bots#6-botfather)
 

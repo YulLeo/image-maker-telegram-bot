@@ -1,42 +1,18 @@
-import datetime
 from io import BytesIO
 from typing import Any, Tuple
 
 from PIL import Image, ImageDraw, ImageFont, ImageSequence
 
-from telegram_bot.config import (DURATION, FILL_COLOR, GIF, GIF_FILE_NAME,
+from telegram_bot.config import (FILL_COLOR, GIF, GIF_FILE_NAME,
                                  HEIGHT_PROPORTION, PNG, PNG_IMAGE,
                                  REGULAR_TTF, STROKE_COLOR, STROKE_WIDTH,
                                  WIDTH_PROPORTION)
-from telegram_bot.helper import read_image
-from telegram_bot.models import GIFs, Images
-from minio import Minio
-from minio.commonconfig import Tags
-from minio.error import S3Error
+from telegram_bot.data_manager import minio_storage_manager
+from telegram_bot.helper import read_image, save_file, save_gif
 
 
-def add_gif_to_storage(bucket: str, file: BytesIO, user_id: int, private) -> None:
-    privacy = {0: 'no', 1: 'yes'}
-    client = Minio(
-        "127.0.0.1:9000",
-        access_key="yuliya",
-        secret_key="9817930789h",
-        secure=False,
-    )
-    file_name = f'{user_id}{datetime.datetime.now()}'
-    file_length = file.getbuffer().nbytes
-    tags = Tags(for_object=True)
-    tags['Privacy'] = privacy[private]
-    tags['user_id'] = str(user_id)
-    client.put_object(bucket, file_name, file, file_length, 'gif',
-                      metadata={'user_id': user_id, 'private': private},
-                      tags=tags
-                      )
-
-
-def create_gif(
-        pictures: list, watermark: str,
-        user_id: int, private=0) -> BytesIO:
+def create_gif(pictures: list, watermark: str,
+               user_id: int, private=0) -> BytesIO:
     """
     Creates gif with watermark from list of PIL images and adds it to database.
     Returns BytesIO object
@@ -50,8 +26,9 @@ def create_gif(
     resized_pictures = resize_picture(pictures)
     gif = save_gif(resized_pictures)
     watermarked_gif = add_watermark(gif, watermark)
-    add_gif_to_storage('gifs', file=watermarked_gif, user_id=user_id, private=private)
-    # GIFs(watermarked_gif.read(), user_id, private).add_table_row()
+    minio_storage_manager.add_gif_to_storage(
+        "gifs", file=watermarked_gif, user_id=user_id, private=private
+    )
     watermarked_gif.seek(0)
     return watermarked_gif
 
@@ -85,8 +62,10 @@ def create_text_with_picture(img: Image, text: str, user_id: int) -> BytesIO:
     """
     add_text(img, text)
     new_image = save_file(img, PNG_IMAGE, PNG)
-    Images(new_image.read(), user_id).add_table_row()
-
+    new_image.seek(0)
+    minio_storage_manager.add_image_to_storage(
+        "images", file=new_image, user_id=user_id
+    )
     new_image.seek(0)
     return new_image
 
@@ -111,42 +90,8 @@ def add_text(img: Image, text: str) -> ImageDraw:
     return draw
 
 
-def save_file(image: Image, name: str, file_format: str) -> BytesIO:
-    """
-    Takes PIL file and returns gif or image as BytesIO object
-    :param file_format: file format
-    :param name: file name
-    :param image: PIL image
-    :return: BytesIO
-    """
-    new_file = BytesIO()
-    new_file.name = name
-    image.save(new_file, format=file_format)
-    return new_file
-
-
-def save_gif(images: list) -> BytesIO:
-    """
-    Takes list of opened PIL images and returns gif as BytesIO object
-    :param images: list of opened PIL images
-    :return: BytesIO
-    """
-    gif = BytesIO()
-    gif.name = GIF_FILE_NAME
-    images[0].save(
-        gif,
-        format=GIF,
-        save_all=True,
-        append_images=images[1:],
-        duration=DURATION,
-        loop=0,
-    )
-    gif.seek(0)
-    return gif
-
-
 def set_up_text_location(
-        image: ImageDraw, img_opened: Image, text: str, font: ImageFont
+    image: ImageDraw, img_opened: Image, text: str, font: ImageFont
 ) -> Tuple[Any, Any]:
     """
     Returns coordinates of text location on the image
@@ -158,7 +103,7 @@ def set_up_text_location(
     """
     width_text, height_text = image.textsize(text, font)
     width, height = (img_opened.size[0] - width_text) * WIDTH_PROPORTION, (
-            img_opened.size[1] - height_text
+        img_opened.size[1] - height_text
     ) * HEIGHT_PROPORTION
     return width, height
 
@@ -173,7 +118,7 @@ def make_dynamic_font(image: Any, text: str) -> ImageFont:
     fontsize = 1
     img_fraction = 0.40
     bytes_font = BytesIO()
-    with open(REGULAR_TTF, 'rb') as font_file:
+    with open(REGULAR_TTF, "rb") as font_file:
         bytes_font.write(font_file.read())
     bytes_font.seek(0)
     font = ImageFont.truetype(bytes_font, fontsize)
