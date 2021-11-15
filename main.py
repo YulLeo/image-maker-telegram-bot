@@ -31,8 +31,7 @@ class Pictures(StatesGroup):
 async def send_welcome(message: types.Message):
     """Sends welcome message and help"""
     await message.answer(
-        "This bot assists you with pictures.\n"
-        "He can add text to your picture or make GIF from group of images\n\n"
+        "I can add text to your picture or make GIF from group of images\n\n"
         "Add text to picture: /add_text\n"
         "Create GIF: /create_gif\n"
         "Download_gifs: /download_gifs\n"
@@ -56,11 +55,11 @@ async def create_gif_instructions(message: types.Message):
     """
     Explains how to create GIF
     """
-    await bot.send_photo(
-        chat_id=message.chat.id,
-        photo=open(REPOSITORY_ROOT / "telegram_bot" / "private_gif_example.png", "rb"),
-        caption="To make GIF you should attach group of images\nType 'private' to make GIF unavailable for "
-        "downloading by other users",
+    await message.answer(
+        "To make GIF you should attach group of images.\n"
+        "Than choose if the GIF should be private or not.\n"
+        "Picking 'private' option you make the GIF unavailable for "
+        "downloading by other users.",
     )
 
 
