@@ -7,7 +7,8 @@ from telegram_bot.config import (FILL_COLOR, GIF, GIF_FILE_NAME,
                                  HEIGHT_PROPORTION, PNG, PNG_IMAGE,
                                  REGULAR_TTF, STROKE_COLOR, STROKE_WIDTH,
                                  WIDTH_PROPORTION)
-from telegram_bot.data_manager import minio_storage_manager
+from telegram_bot.connection import minio_storage_manager
+
 from telegram_bot.helper import read_image, save_file, save_gif
 
 

@@ -11,7 +11,8 @@ from aiogram_media_group import media_group_handler
 
 from telegram_bot import exceptions
 from telegram_bot.config import API_TOKEN, REPOSITORY_ROOT
-from telegram_bot.data_manager import minio_storage_manager
+from telegram_bot.connection import minio_storage_manager
+
 from telegram_bot.helper import (ArgsGetGifsEnum, add_to_archive, read_image,
                                  read_images)
 from telegram_bot.image_maker import create_gif, create_text_with_picture
@@ -45,7 +46,7 @@ async def add_file_instructions(message: types.Message):
     """
     await bot.send_photo(
         chat_id=message.chat.id,
-        photo=open(REPOSITORY_ROOT / "telegram_bot" / "add_text_example.png", "rb"),
+        photo=open(REPOSITORY_ROOT / "telegram_bot" / "source" / "add_text_example.png", "rb"),
         caption="Just attach picture and add your text in the same message",
     )
 
@@ -116,7 +117,7 @@ async def send_gifs(gifs: Tuple[int, list], message: types.Message) -> None:
         )
 
 
-async def create_media_group(gifs: list[BytesIO]) -> types.MediaGroup:
+async def create_media_group(gifs: list) -> types.MediaGroup:
     """
     Takes list of BytesIo objects and attaches them to media group object
     :param gifs: list[BytesIO]
@@ -150,7 +151,7 @@ async def collect_media_group_photo(messages, state: FSMContext):
 
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith("btn"))
 async def process_callback_media_group(
-    callback_query: types.CallbackQuery, state: FSMContext
+        callback_query: types.CallbackQuery, state: FSMContext
 ):
     code = callback_query.data
     await bot.edit_message_reply_markup(

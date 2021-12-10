@@ -4,8 +4,7 @@ from typing import Tuple
 
 from minio import Minio
 
-from telegram_bot.config import (ACCESS_KEY, OBJECT_STORAGE_IP,
-                                 OBJECT_STORAGE_PORT, SECRET_KEY, USER_ID, PRIVATE)
+from telegram_bot.config import (USER_ID, PRIVATE)
 from telegram_bot.helper import ArgsGetGifsEnum
 
 
@@ -113,11 +112,3 @@ class MinioStore:
         found = self.client.bucket_exists(bucket)
         if not found:
             self.client.make_bucket(bucket)
-
-
-minio_storage_manager = MinioStore(
-    api=OBJECT_STORAGE_IP,
-    port=OBJECT_STORAGE_PORT,
-    access_key=ACCESS_KEY,
-    secret_key=SECRET_KEY,
-)
