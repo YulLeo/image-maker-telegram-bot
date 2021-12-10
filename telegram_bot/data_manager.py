@@ -12,7 +12,7 @@ class MinioStore:
     """
     Initialize client and manage MinIo storage
     """
-    def __init__(self, api, port, access_key, secret_key):
+    def __init__(self, api: str, port: str, access_key: str, secret_key: str):
 
         self.client = Minio(
             f"{api}:{port}",
