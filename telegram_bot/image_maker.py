@@ -103,9 +103,8 @@ def set_up_text_location(
     :return: Tuple[Any, Any]
     """
     width_text, height_text = image.textsize(text, font)
-    width, height = (img_opened.size[0] - width_text) * WIDTH_PROPORTION, (
-        img_opened.size[1] - height_text
-    ) * HEIGHT_PROPORTION
+    width = (img_opened.size[0] - width_text) * WIDTH_PROPORTION
+    height = (img_opened.size[1] - height_text) * HEIGHT_PROPORTION
     return width, height
 
 
